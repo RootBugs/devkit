@@ -2,6 +2,25 @@ import chalk from 'chalk'
 import { getStagedDiff } from '../core/git.js'
 import { analyzeFile } from '../core/analyzer.js'
 import { formatReviewFindings } from '../utils/format.js'
+import type { ReviewFinding } from '../types/index.js'
+
+const MAX_LINE_LENGTH = 120
+
+function checkLineLengths(content: string, file: string): ReviewFinding[] {
+  const findings: ReviewFinding[] = []
+  const lines = content.split('\n')
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].length > MAX_LINE_LENGTH) {
+      findings.push({
+        file,
+        line: i + 1,
+        severity: 'warning',
+        message: `Line exceeds ${MAX_LINE_LENGTH} characters (${lines[i].length})`,
+      })
+    }
+  }
+  return findings
+}
 
 export async function reviewCommand(options: { all?: boolean }): Promise<void> {
   const diffs = await getStagedDiff()
@@ -19,8 +38,9 @@ export async function reviewCommand(options: { all?: boolean }): Promise<void> {
 
   for (const diff of diffs) {
     const findings = analyzeFile(diff)
-    allFindings.push(...findings)
-    fileSummary.push({ file: diff.file, issues: findings.length })
+    const lineLengthFindings = checkLineLengths(diff.content, diff.file)
+    allFindings.push(...findings, ...lineLengthFindings)
+    fileSummary.push({ file: diff.file, issues: findings.length + lineLengthFindings.length })
   }
 
   // Print file overview
