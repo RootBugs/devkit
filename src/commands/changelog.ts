@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { getTags, getGitLog } from '../core/git.js'
+import { getTags, getGitLog, parseConventionalCommit } from '../core/git.js'
 import { formatChangelog } from '../utils/format.js'
 import type { ChangelogSection, ChangelogEntry } from '../types/index.js'
 
@@ -51,7 +51,7 @@ export async function changelogCommand(options: { from?: string; to?: string; ou
 
     if (!msg) return null
 
-    const parsed = parseConventional(msg)
+    const parsed = parseConventionalCommit(msg)
 
     if (parsed) {
       return {
@@ -122,17 +122,5 @@ export async function changelogCommand(options: { from?: string; to?: string; ou
   } else {
     console.log(markdown)
     console.log(chalk.dim('\n💡 Use --output <file> to save to a file.'))
-  }
-}
-
-function parseConventional(msg: string): { type: string; scope?: string; breaking: boolean; description: string } | null {
-  const pattern = /^(feat|fix|refactor|chore|docs|style|perf|test|ci|build|revert)(\((.+?)\))?(!)?:\s*(.+)$/
-  const match = msg.match(pattern)
-  if (!match) return null
-  return {
-    type: match[1],
-    scope: match[3],
-    breaking: match[4] === '!' || msg.toLowerCase().includes('breaking change'),
-    description: match[5],
   }
 }
