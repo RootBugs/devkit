@@ -47,7 +47,10 @@ export async function changelogCommand(options: { from?: string; to?: string; ou
     if (!match) return null as ChangelogEntry | null
 
     const hash = match[1]
-    const msg = match[2]
+    const msg = match[2].trim()
+
+    if (!msg) return null
+
     const parsed = parseConventional(msg)
 
     if (parsed) {
