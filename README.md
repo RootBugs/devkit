@@ -59,6 +59,20 @@ devkit review
 devkit changelog -o CHANGELOG.md
 ```
 
+## Commit Types Reference
+
+| Type | Description |
+|------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `refactor` | Code restructuring without behavior change |
+| `docs` | Documentation only |
+| `style` | Formatting, missing semicolons, etc. |
+| `perf` | Performance improvement |
+| `test` | Adding or fixing tests |
+| `chore` | Build process, dependencies, configs |
+| `ci` | CI/CD pipeline changes |
+
 ## Configuration
 
 Config lives at `~/.config/devkit/config.json`:
