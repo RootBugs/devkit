@@ -41,6 +41,11 @@ function checkUnusedImports(content: string, file: string): ReviewFinding[] {
 
 export function analyzeFile(file: GitFileDiff): ReviewFinding[] {
   const findings: ReviewFinding[] = []
+  
+  if (!file.content.trim()) {
+    return findings
+  }
+
   const config = loadConfig()
   if (!config.review.patterns) return findings
 
