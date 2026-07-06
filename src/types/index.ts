@@ -61,3 +61,9 @@ export interface ReviewConfig {
     largeFiles: boolean
   }
 }
+
+export interface ChangelogConfig {
+  sections: string[]
+  commitTypes: Record<string, string>
+  excludePatterns: string[]
+}
