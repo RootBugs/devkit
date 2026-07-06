@@ -7,6 +7,7 @@ const TODO_PATTERN = /\b(TODO|FIXME|HACK|XXX)\b/i
 const MAGIC_NUMBER = /(?<![.\w])[0-9]{3,}(?![.\w])/
 const TS_ANY = /:\s*any\b/
 const UNUSED_IMPORT = /import\s+(?:type\s+)?{([^}]+)}\s+from/
+const EMPTY_CATCH = /catch\s*\([^)]*\)\s*\{\s*\}/
 const FUNCTION_START = /(function\s+\w*\s*\(|=>\s*\{|^\s*\w+\s*\([^)]*\)\s*\{)/gm
 
 function countLines(content: string): number {
@@ -146,6 +147,21 @@ export function analyzeFile(file: GitFileDiff): ReviewFinding[] {
 
   // Check for unused imports
   findings.push(...checkUnusedImports(diff, file.file))
+
+  // Check for empty catch blocks
+  if (config.review.patterns.errorHandling) {
+    let match: RegExpExecArray | null
+    const catchRegex = new RegExp(EMPTY_CATCH.source, 'g')
+    while ((match = catchRegex.exec(diff)) !== null) {
+      findings.push({
+        file: file.file,
+        line: extractLineNumber(diff, match.index),
+        severity: 'warning',
+        message: `Empty catch block — errors are being silently swallowed`,
+        code: match[0].trim(),
+      })
+    }
+  }
 
   return findings
 }
