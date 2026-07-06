@@ -38,10 +38,27 @@ export function loadConfig(): DevKitConfig {
   }
   try {
     const raw = readFileSync(configPath, 'utf-8')
-    return { ...DEFAULT_CONFIG, ...JSON.parse(raw) }
+    const parsed = JSON.parse(raw)
+    return validateConfig({ ...DEFAULT_CONFIG, ...parsed })
   } catch {
     return { ...DEFAULT_CONFIG }
   }
+}
+
+function validateConfig(config: DevKitConfig): DevKitConfig {
+  if (typeof config.review?.maxLinesPerFile !== 'number') {
+    config.review.maxLinesPerFile = DEFAULT_CONFIG.review.maxLinesPerFile
+  }
+  if (typeof config.review?.maxFunctionLines !== 'number') {
+    config.review.maxFunctionLines = DEFAULT_CONFIG.review.maxFunctionLines
+  }
+  if (!Array.isArray(config.commitTypes)) {
+    config.commitTypes = DEFAULT_CONFIG.commitTypes
+  }
+  if (typeof config.defaultBranch !== 'string') {
+    config.defaultBranch = DEFAULT_CONFIG.defaultBranch
+  }
+  return config
 }
 
 export function saveConfig(config: Partial<DevKitConfig>): void {
