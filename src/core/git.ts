@@ -3,6 +3,15 @@ import type { GitFileDiff } from '../types/index.js'
 
 const _git = () => simpleGit({ baseDir: process.cwd() })
 
+export async function isGitRepo(): Promise<boolean> {
+  try {
+    await _git().revparse(['--is-inside-work-tree'])
+    return true
+  } catch {
+    return false
+  }
+}
+
 export async function getStagedDiff(): Promise<GitFileDiff[]> {
   const g = _git()
   const diff = await g.diff(['--cached', '--stat'])
