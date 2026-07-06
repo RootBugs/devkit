@@ -118,3 +118,15 @@ export function formatFileSummary(files: { file: string; additions: number; dele
   })
   return parts.join('\n')
 }
+
+export function formatError(message: string, details?: string): string {
+  const parts = [chalk.red.bold(`✗ ${message}`)]
+  if (details) {
+    parts.push(chalk.dim(`  ${details}`))
+  }
+  return parts.join('\n')
+}
+
+export function formatSuccess(message: string): string {
+  return chalk.green.bold(`✓ ${message}`)
+}
