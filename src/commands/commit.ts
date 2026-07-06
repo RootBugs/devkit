@@ -5,7 +5,7 @@ import { generateCommitMessages } from '../utils/prompts.js'
 import { formatCommitSuggestions } from '../utils/format.js'
 import type { CommitSuggestion } from '../types/index.js'
 
-export async function commitCommand(options: { all?: boolean; type?: string; message?: string }): Promise<void> {
+export async function commitCommand(options: { all?: boolean; type?: string; message?: string; dryRun?: boolean }): Promise<void> {
   if (options.all) {
     await stageAllFiles()
   }
@@ -24,6 +24,10 @@ export async function commitCommand(options: { all?: boolean; type?: string; mes
 
   // If direct message provided, use it
   if (options.message) {
+    if (options.dryRun) {
+      console.log(chalk.dim(`[dry-run] Would commit: ${options.message}`))
+      return
+    }
     await commit(options.message)
     console.log(chalk.green('✓ Committed with provided message.'))
     return
@@ -110,6 +114,12 @@ export async function commitCommand(options: { all?: boolean; type?: string; mes
 
   if (!confirm) {
     console.log(chalk.dim('Commit cancelled.'))
+    return
+  }
+
+  if (options.dryRun) {
+    console.log(chalk.dim(`\n[dry-run] Would commit with message:`))
+    console.log(chalk.cyan(finalMessage))
     return
   }
 

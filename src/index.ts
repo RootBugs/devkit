@@ -19,6 +19,7 @@ program
   .option('-a, --all', 'Stage all changes before committing')
   .option('-t, --type <type>', 'Specify commit type (feat, fix, refactor, etc.)')
   .option('-m, --message <message>', 'Direct commit message (skip interactive)')
+  .option('--dry-run', 'Show what would be committed without actually committing')
   .action(commitCommand)
 
 program
