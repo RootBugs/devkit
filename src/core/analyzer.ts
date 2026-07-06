@@ -2,6 +2,7 @@ import type { ReviewFinding, GitFileDiff } from '../types/index.js'
 import { loadConfig } from './config.js'
 
 const DEBUG_PATTERN = /console\.\w+\s*\(|debugger\s*;?/
+const CONSOLE_ERROR_PATTERN = /console\.error\s*\(/
 const TODO_PATTERN = /\b(TODO|FIXME|HACK|XXX)\b/i
 const MAGIC_NUMBER = /(?<![.\w])[0-9]{3,}(?![.\w])/
 const TS_ANY = /:\s*any\b/
@@ -55,6 +56,21 @@ export function analyzeFile(file: GitFileDiff): ReviewFinding[] {
         line: extractLineNumber(diff, match.index),
         severity: 'warning',
         message: `Debug statement left in code: "${match[0].trim()}"`,
+        code: match[0].trim(),
+      })
+    }
+  }
+
+  // Check for console.error statements
+  if (config.review.patterns.debug) {
+    let match: RegExpExecArray | null
+    const errorRegex = new RegExp(CONSOLE_ERROR_PATTERN.source, 'g')
+    while ((match = errorRegex.exec(diff)) !== null) {
+      findings.push({
+        file: file.file,
+        line: extractLineNumber(diff, match.index),
+        severity: 'error',
+        message: `console.error left in code — use proper error handling`,
         code: match[0].trim(),
       })
     }
