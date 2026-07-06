@@ -1,6 +1,16 @@
 import chalk from 'chalk'
 import type { CommitSuggestion, ReviewFinding, ChangelogSection, PRInfo } from '../types/index.js'
 
+const COLORS = {
+  success: chalk.green,
+  warning: chalk.yellow,
+  error: chalk.red,
+  info: chalk.blue,
+  dim: chalk.dim,
+  bold: chalk.bold,
+  cyan: chalk.cyan,
+} as const
+
 export function formatCommitSuggestions(suggestions: CommitSuggestion[]): string {
   return suggestions
     .map((s, i) => {
