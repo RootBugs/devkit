@@ -5,6 +5,7 @@ const DEBUG_PATTERN = /console\.\w+\s*\(|debugger\s*;?/
 const TODO_PATTERN = /\b(TODO|FIXME|HACK|XXX)\b/i
 const MAGIC_NUMBER = /(?<![.\w])[0-9]{3,}(?![.\w])/
 const TS_ANY = /:\s*any\b/
+const UNUSED_IMPORT = /import\s+(?:type\s+)?{([^}]+)}\s+from/
 const FUNCTION_START = /(function\s+\w*\s*\(|=>\s*\{|^\s*\w+\s*\([^)]*\)\s*\{)/gm
 
 function countLines(content: string): number {
@@ -13,6 +14,28 @@ function countLines(content: string): number {
 
 function extractLineNumber(content: string, index: number): number {
   return content.substring(0, index).split('\n').length
+}
+
+function checkUnusedImports(content: string, file: string): ReviewFinding[] {
+  const findings: ReviewFinding[] = []
+  const importMatch = content.match(UNUSED_IMPORT)
+  if (!importMatch) return findings
+
+  const imports = importMatch[1].split(',').map(i => i.trim().split(/\s+as\s+/)[0].trim())
+  const body = content.slice(importMatch.index! + importMatch[0].length)
+
+  for (const imp of imports) {
+    if (!body.includes(imp)) {
+      findings.push({
+        file,
+        line: extractLineNumber(content, importMatch.index!),
+        severity: 'warning',
+        message: `Unused import: "${imp}"`,
+        code: importMatch[0],
+      })
+    }
+  }
+  return findings
 }
 
 export function analyzeFile(file: GitFileDiff): ReviewFinding[] {
@@ -99,6 +122,9 @@ export function analyzeFile(file: GitFileDiff): ReviewFinding[] {
       })
     }
   }
+
+  // Check for unused imports
+  findings.push(...checkUnusedImports(diff, file.file))
 
   return findings
 }
