@@ -140,7 +140,7 @@ export function parseDiffStat(stat: string): { file: string; status: GitFileDiff
     const match = line.match(/^(.+?)\s+\|\s+(\d+)\s[+-]*$/)
     if (match) {
       files.push({
-        file: match[1].trim(),
+        file: normalizePath(match[1].trim()),
         status: 'modified',
         additions: 0,
         deletions: 0,
@@ -149,6 +149,10 @@ export function parseDiffStat(stat: string): { file: string; status: GitFileDiff
   }
 
   return files
+}
+
+function normalizePath(p: string): string {
+  return p.replace(/\\/g, '/')
 }
 
 function mapStatus(workingDir: string): GitFileDiff['status'] {
