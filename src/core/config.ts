@@ -26,22 +26,29 @@ const DEFAULT_CONFIG: DevKitConfig = {
   defaultBranch: 'main',
 }
 
+let cachedConfig: DevKitConfig | null = null
+
 function getConfigPath(): string {
   const configDir = join(homedir(), '.config', 'devkit')
   return join(configDir, 'config.json')
 }
 
 export function loadConfig(): DevKitConfig {
+  if (cachedConfig) return cachedConfig
+  
   const configPath = getConfigPath()
   if (!existsSync(configPath)) {
-    return { ...DEFAULT_CONFIG }
+    cachedConfig = { ...DEFAULT_CONFIG }
+    return cachedConfig
   }
   try {
     const raw = readFileSync(configPath, 'utf-8')
     const parsed = JSON.parse(raw)
-    return validateConfig({ ...DEFAULT_CONFIG, ...parsed })
+    cachedConfig = validateConfig({ ...DEFAULT_CONFIG, ...parsed })
+    return cachedConfig
   } catch {
-    return { ...DEFAULT_CONFIG }
+    cachedConfig = { ...DEFAULT_CONFIG }
+    return cachedConfig
   }
 }
 
