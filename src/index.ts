@@ -27,12 +27,14 @@ program
   .description('Generate PR descriptions from branch diffs')
   .option('-b, --base <branch>', 'Base branch to compare against (default: auto-detect)')
   .option('-o, --output <file>', 'Save PR description to file')
+  .option('--verbose', 'Show detailed output')
   .action(prCommand)
 
 program
   .command('review')
   .description('Review staged changes for issues')
   .option('-a, --all', 'Review all unstaged changes too')
+  .option('--verbose', 'Show detailed output')
   .action(reviewCommand)
 
 program
@@ -41,6 +43,7 @@ program
   .option('-f, --from <ref>', 'Starting commit/tag')
   .option('-t, --to <ref>', 'Ending commit/tag (default: HEAD)')
   .option('-o, --output <file>', 'Output file (default: stdout)')
+  .option('--verbose', 'Show detailed output')
   .action(changelogCommand)
 
 program.addHelpText('after', `
