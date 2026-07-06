@@ -5,13 +5,14 @@ import { commitCommand } from './commands/commit.js'
 import { prCommand } from './commands/pr.js'
 import { reviewCommand } from './commands/review.js'
 import { changelogCommand } from './commands/changelog.js'
+import { saveConfig } from './core/config.js'
 
 const program = new Command()
 
 program
   .name('devkit')
   .description(chalk.cyan('🧰 DevKit — AI-powered developer CLI toolkit'))
-  .version('1.0.0')
+  .version('1.1.0')
 
 program
   .command('commit')
@@ -45,6 +46,14 @@ program
   .option('-o, --output <file>', 'Output file (default: stdout)')
   .option('--verbose', 'Show detailed output')
   .action(changelogCommand)
+
+program
+  .command('init')
+  .description('Initialize devkit config in current directory')
+  .action(() => {
+    saveConfig({})
+    console.log(chalk.green('✓ Config initialized at ~/.config/devkit/config.json'))
+  })
 
 program.addHelpText('after', `
 ${chalk.dim('Examples:')}
