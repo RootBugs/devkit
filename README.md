@@ -38,6 +38,11 @@ npm install -g devkit
 npx devkit commit
 ```
 
+## Requirements
+
+- **Node.js** >= 18.0.0
+- **Git** >= 2.30.0
+
 ## Usage
 
 ```bash
