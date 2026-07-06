@@ -2,11 +2,13 @@ import chalk from 'chalk'
 import { getBranchDiff, getCurrentBranch, detectDefaultBranch, hasMergeBase } from '../core/git.js'
 import { formatPR } from '../utils/format.js'
 
-export async function prCommand(options: { base?: string; output?: string }): Promise<void> {
+export async function prCommand(options: { base?: string; output?: string; verbose?: boolean }): Promise<void> {
   const branch = await getCurrentBranch()
   const baseBranch = options.base || await detectDefaultBranch()
 
-  console.log(chalk.dim(`\n📂 Comparing ${chalk.bold(branch)} → ${chalk.bold(baseBranch)}\n`))
+  if (options.verbose) {
+    console.log(chalk.dim(`\n📂 Comparing ${chalk.bold(branch)} → ${chalk.bold(baseBranch)}\n`))
+  }
 
   if (branch === baseBranch) {
     console.log(chalk.yellow('⚠ Already on base branch. Nothing to compare.'))
