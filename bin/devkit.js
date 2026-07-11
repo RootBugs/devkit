@@ -2,20 +2,18 @@
 import { readFileSync } from 'fs'
 import { createRequire } from 'module'
 import { resolve, dirname } from 'path'
-import { fileURLToPath } from 'url'
+import { fileURLToPath, pathToFileURL } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// Try loading the compiled JS first, fallback to ts source via tsx or ts-node
 try {
   const distPath = resolve(__dirname, '..', 'dist', 'index.js')
-  await import(distPath)
+  await import(pathToFileURL(distPath).href)
 } catch {
-  // Fallback: try running from source
   try {
     const srcPath = resolve(__dirname, '..', 'src', 'index.ts')
-    await import(srcPath)
+    await import(pathToFileURL(srcPath).href)
   } catch {
     console.error('❌ Failed to load devkit. Run "npm run build" first, or use "npx tsx src/index.ts"')
     process.exit(1)

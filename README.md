@@ -81,6 +81,16 @@ Config lives at `~/.config/devkit/config.json`:
 }
 ```
 
+## Platform Support
+
+- **Windows**: Full support (ESM path handling for drive-letter paths)
+- **macOS / Linux**: Full support
+
+## Known Behaviors
+
+- `devkit pr` gracefully handles orphan branches (no shared commit history) with a clear message instead of crashing.
+- `devkit pr` detects when comparing a branch to itself and exits early.
+
 ## Tech Stack
 
 - **Runtime**: Node.js 18+

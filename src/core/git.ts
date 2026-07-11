@@ -40,7 +40,16 @@ export async function getBranchDiff(baseBranch: string): Promise<GitFileDiff[]> 
     throw new Error(`Base branch "${baseBranch}" not found. Use --base to specify a valid branch.`)
   }
 
-  const diff = await g.diff([baseBranch + '...' + currentBranch, '--stat'])
+  let diff: string
+  try {
+    diff = await g.diff([baseBranch + '...' + currentBranch, '--stat'])
+  } catch (err: any) {
+    if (err.message?.includes('no merge base') || err.message?.includes('no base')) {
+      return []
+    }
+    throw err
+  }
+
   const files = parseDiffStat(diff)
   const results: GitFileDiff[] = []
 
@@ -89,6 +98,28 @@ export async function getTags(): Promise<string[]> {
 
 export async function getCurrentBranch(): Promise<string> {
   return _git().revparse(['--abbrev-ref', 'HEAD'])
+}
+
+export async function isOrphanBranch(branch: string): Promise<boolean> {
+  try {
+    const g = _git()
+    const log = await g.log({ branch, maxCount: 1 })
+    if (log.latest?.message === undefined) return true
+    const parent = await g.raw(['rev-parse', branch + '^']).catch(() => null)
+    return !parent
+  } catch {
+    return true
+  }
+}
+
+export async function hasMergeBase(branchA: string, branchB: string): Promise<boolean> {
+  try {
+    const g = _git()
+    const result = await g.raw(['merge-base', branchA, branchB])
+    return result.trim().length > 0
+  } catch {
+    return false
+  }
 }
 
 export async function stageAllFiles(): Promise<void> {

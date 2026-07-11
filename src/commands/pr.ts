@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { getBranchDiff, getCurrentBranch, detectDefaultBranch } from '../core/git.js'
+import { getBranchDiff, getCurrentBranch, detectDefaultBranch, hasMergeBase } from '../core/git.js'
 import { formatPR } from '../utils/format.js'
 
 export async function prCommand(options: { base?: string; output?: string }): Promise<void> {
@@ -7,6 +7,17 @@ export async function prCommand(options: { base?: string; output?: string }): Pr
   const baseBranch = options.base || await detectDefaultBranch()
 
   console.log(chalk.dim(`\n📂 Comparing ${chalk.bold(branch)} → ${chalk.bold(baseBranch)}\n`))
+
+  if (branch === baseBranch) {
+    console.log(chalk.yellow('⚠ Already on base branch. Nothing to compare.'))
+    return
+  }
+
+  if (!await hasMergeBase(branch, baseBranch)) {
+    console.log(chalk.yellow('⚠ Branches have no shared commit history (orphan branches).'))
+    console.log(chalk.dim('  Create a branch from the base branch first: git checkout -b <branch> ' + baseBranch))
+    return
+  }
 
   const diffs = await getBranchDiff(baseBranch)
 
